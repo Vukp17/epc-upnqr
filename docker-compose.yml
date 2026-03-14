@@ -1,0 +1,13 @@
+version: "3.9"
+
+services:
+  qr-converter-service:
+    build:
+      context: ./services/qr-converter-service
+      dockerfile: Dockerfile
+    container_name: qr-converter-service
+    ports:
+      - "8001:8001"
+    environment:
+      - PYTHONUNBUFFERED=1
+    restart: unless-stopped
