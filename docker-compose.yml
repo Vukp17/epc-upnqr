@@ -11,3 +11,20 @@ services:
     environment:
       - PYTHONUNBUFFERED=1
     restart: unless-stopped
+
+  upn-records-service:
+    build:
+      context: ./services/upn-records-service
+      dockerfile: Dockerfile
+    container_name: upn-records-service
+    ports:
+      - "50051:50051"
+    environment:
+      - GRPC_PORT=50051
+      - DB_PATH=/data/upn-records.db
+    volumes:
+      - upn-records-data:/data
+    restart: unless-stopped
+
+volumes:
+  upn-records-data:

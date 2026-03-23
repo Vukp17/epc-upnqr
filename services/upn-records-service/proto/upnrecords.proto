@@ -1,0 +1,66 @@
+syntax = "proto3";
+
+package upnrecords;
+
+option go_package = "upn-records-service/proto";
+
+// UPNRecordsService stores and validates UPN payment conversion records.
+service UPNRecordsService {
+  rpc SaveConversion(SaveConversionRequest) returns (SaveConversionResponse);
+  rpc ListConversions(ListConversionsRequest) returns (ListConversionsResponse);
+  rpc GetConversionById(GetConversionByIdRequest) returns (ConversionRecord);
+  rpc ValidatePayment(ValidatePaymentRequest) returns (ValidatePaymentResponse);
+}
+
+message ConversionRecord {
+  string id             = 1;
+  string source         = 2;
+  string iban           = 3;
+  double amount         = 4;
+  string currency       = 5;
+  string recipient_name = 6;
+  string purpose        = 7;
+  string reference      = 8;
+  string created_at     = 9;
+}
+
+message SaveConversionRequest {
+  string source         = 1;
+  string iban           = 2;
+  double amount         = 3;
+  string currency       = 4;
+  string recipient_name = 5;
+  string purpose        = 6;
+  string reference      = 7;
+}
+
+message SaveConversionResponse {
+  ConversionRecord record = 1;
+}
+
+message ListConversionsRequest {
+  int32 limit  = 1;
+  int32 offset = 2;
+}
+
+message ListConversionsResponse {
+  repeated ConversionRecord records = 1;
+  int32                     total   = 2;
+}
+
+message GetConversionByIdRequest {
+  string id = 1;
+}
+
+message ValidatePaymentRequest {
+  string iban           = 1;
+  double amount         = 2;
+  string currency       = 3;
+  string recipient_name = 4;
+  string reference      = 5;
+}
+
+message ValidatePaymentResponse {
+  bool             valid  = 1;
+  repeated string  errors = 2;
+}

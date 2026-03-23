@@ -1,0 +1,43 @@
+name: Go Unit Tests – upn-records-service
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - "services/upn-records-service/**"
+  pull_request:
+    paths:
+      - "services/upn-records-service/**"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.22"
+
+      - name: Install protoc
+        run: sudo apt-get install -y protobuf-compiler
+
+      - name: Install protoc-gen-go plugins
+        working-directory: services/upn-records-service
+        run: |
+          go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+          go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+
+      - name: Generate proto bindings
+        working-directory: services/upn-records-service
+        run: make generate
+
+      - name: Download dependencies
+        working-directory: services/upn-records-service
+        run: go mod tidy
+
+      - name: Run tests
+        working-directory: services/upn-records-service
+        run: go test -v ./...

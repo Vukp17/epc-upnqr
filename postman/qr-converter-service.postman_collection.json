@@ -1,0 +1,159 @@
+{
+  "info": {
+    "name": "QR Converter Service Demo",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Presentation-ready collection for QR Converter Service."
+  },
+  "item": [
+    {
+      "name": "Health",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/health",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "health"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status is 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "const body = pm.response.json();",
+              "pm.test('Health is ok', function () {",
+              "  pm.expect(body.status).to.eql('ok');",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "OpenAPI JSON",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/openapi.json",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "openapi.json"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Convert PDF to EPC",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "file",
+              "type": "file",
+              "src": "{{pdfPath}}"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/convert/pdf",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "convert",
+            "pdf"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status is 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "const body = pm.response.json();",
+              "pm.test('Response contains amount and iban', function () {",
+              "  pm.expect(body.upn_parsed).to.have.property('amount');",
+              "  pm.expect(body.upn_parsed).to.have.property('iban');",
+              "});",
+              "pm.test('EPC payload starts with BCD', function () {",
+              "  pm.expect((body.epc_payload || '').startsWith('BCD')).to.eql(true);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Convert UPN String to EPC",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"upn_payload\": \"{{upnPayload}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/convert/upn-string",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "convert",
+            "upn-string"
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status is 200', function () {",
+              "  pm.response.to.have.status(200);",
+              "});",
+              "const body = pm.response.json();",
+              "pm.test('Amount is parsed', function () {",
+              "  pm.expect(body.upn_parsed.amount).to.not.eql(null);",
+              "});",
+              "pm.test('EPC QR image exists', function () {",
+              "  pm.expect((body.epc_qr_png_base64 || '').length).to.be.above(100);",
+              "});"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
