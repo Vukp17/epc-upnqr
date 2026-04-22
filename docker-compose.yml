@@ -1,6 +1,29 @@
 version: "3.9"
 
 services:
+  web-gateway:
+    image: devopsfaith/krakend:2.7
+    container_name: web-gateway
+    command: ["run", "-d", "-c", "/etc/krakend/krakend.json"]
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./gateways/web-gateway/krakend.json:/etc/krakend/krakend.json:ro
+    depends_on:
+      - qr-converter-service
+    restart: unless-stopped
+
+  mobile-gateway:
+    build:
+      context: ./gateways/mobile-gateway
+      dockerfile: Dockerfile
+    container_name: mobile-gateway
+    ports:
+      - "8090:8090"
+    depends_on:
+      - qr-converter-service
+    restart: unless-stopped
+
   qr-converter-service:
     build:
       context: ./services/qr-converter-service

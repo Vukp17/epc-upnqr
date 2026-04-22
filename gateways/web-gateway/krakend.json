@@ -1,0 +1,112 @@
+{
+  "version": 3,
+  "name": "web-gateway",
+  "port": 8080,
+  "timeout": "30000ms",
+  "endpoints": [
+    {
+      "endpoint": "/health",
+      "method": "GET",
+      "output_encoding": "json",
+      "backend": [
+        {
+          "host": [
+            "http://qr-converter-service:8001"
+          ],
+          "url_pattern": "/health",
+          "encoding": "json"
+        }
+      ]
+    },
+    {
+      "endpoint": "/openapi.json",
+      "method": "GET",
+      "output_encoding": "json",
+      "backend": [
+        {
+          "host": [
+            "http://qr-converter-service:8001"
+          ],
+          "url_pattern": "/openapi.json",
+          "encoding": "json"
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/convert/upn-string",
+      "method": "POST",
+      "output_encoding": "json",
+      "input_headers": [
+        "Content-Type"
+      ],
+      "backend": [
+        {
+          "host": [
+            "http://qr-converter-service:8001"
+          ],
+          "url_pattern": "/api/convert/upn-string",
+          "encoding": "json"
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/convert/pdf",
+      "method": "POST",
+      "output_encoding": "no-op",
+      "input_headers": [
+        "Content-Type"
+      ],
+      "backend": [
+        {
+          "host": [
+            "http://qr-converter-service:8001"
+          ],
+          "url_pattern": "/api/convert/pdf",
+          "encoding": "no-op"
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/conversions/recent",
+      "method": "GET",
+      "output_encoding": "json",
+      "backend": [
+        {
+          "host": [
+            "http://qr-converter-service:8001"
+          ],
+          "url_pattern": "/api/conversions/recent",
+          "encoding": "json"
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/conversions/stats",
+      "method": "GET",
+      "output_encoding": "json",
+      "backend": [
+        {
+          "host": [
+            "http://qr-converter-service:8001"
+          ],
+          "url_pattern": "/api/conversions/stats",
+          "encoding": "json"
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/conversions",
+      "method": "DELETE",
+      "output_encoding": "json",
+      "backend": [
+        {
+          "host": [
+            "http://qr-converter-service:8001"
+          ],
+          "url_pattern": "/api/conversions",
+          "encoding": "json"
+        }
+      ]
+    }
+  ]
+}

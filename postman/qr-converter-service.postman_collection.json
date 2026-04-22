@@ -1,156 +1,376 @@
 {
   "info": {
-    "name": "QR Converter Service Demo",
+    "name": "QR Converter Gateways Demo",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-    "description": "Presentation-ready collection for QR Converter Service."
+    "description": "Presentation-ready collection for direct service, KrakenD web gateway, and mobile gateway."
   },
   "item": [
     {
-      "name": "Health",
-      "request": {
-        "method": "GET",
-        "header": [],
-        "url": {
-          "raw": "{{baseUrl}}/health",
-          "host": [
-            "{{baseUrl}}"
-          ],
-          "path": [
-            "health"
-          ]
-        }
-      },
-      "event": [
+      "name": "Direct Service (optional)",
+      "item": [
         {
-          "listen": "test",
-          "script": {
-            "type": "text/javascript",
-            "exec": [
-              "pm.test('Status is 200', function () {",
-              "  pm.response.to.have.status(200);",
-              "});",
-              "const body = pm.response.json();",
-              "pm.test('Health is ok', function () {",
-              "  pm.expect(body.status).to.eql('ok');",
-              "});"
-            ]
+          "name": "Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "health"
+              ]
+            }
           }
         }
       ]
     },
     {
-      "name": "OpenAPI JSON",
-      "request": {
-        "method": "GET",
-        "header": [],
-        "url": {
-          "raw": "{{baseUrl}}/openapi.json",
-          "host": [
-            "{{baseUrl}}"
-          ],
-          "path": [
-            "openapi.json"
-          ]
-        }
-      }
-    },
-    {
-      "name": "Convert PDF to EPC",
-      "request": {
-        "method": "POST",
-        "header": [],
-        "body": {
-          "mode": "formdata",
-          "formdata": [
+      "name": "Web Gateway (KrakenD)",
+      "item": [
+        {
+          "name": "Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{webGatewayUrl}}/health",
+              "host": [
+                "{{webGatewayUrl}}"
+              ],
+              "path": [
+                "health"
+              ]
+            }
+          },
+          "event": [
             {
-              "key": "file",
-              "type": "file",
-              "src": "{{pdfPath}}"
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "const body = pm.response.json();",
+                  "pm.test('Health is ok', function () {",
+                  "  pm.expect(body.status).to.eql('ok');",
+                  "});"
+                ]
+              }
             }
           ]
         },
-        "url": {
-          "raw": "{{baseUrl}}/api/convert/pdf",
-          "host": [
-            "{{baseUrl}}"
-          ],
-          "path": [
-            "api",
-            "convert",
-            "pdf"
-          ]
-        }
-      },
-      "event": [
         {
-          "listen": "test",
-          "script": {
-            "type": "text/javascript",
-            "exec": [
-              "pm.test('Status is 200', function () {",
-              "  pm.response.to.have.status(200);",
-              "});",
-              "const body = pm.response.json();",
-              "pm.test('Response contains amount and iban', function () {",
-              "  pm.expect(body.upn_parsed).to.have.property('amount');",
-              "  pm.expect(body.upn_parsed).to.have.property('iban');",
-              "});",
-              "pm.test('EPC payload starts with BCD', function () {",
-              "  pm.expect((body.epc_payload || '').startsWith('BCD')).to.eql(true);",
-              "});"
-            ]
+          "name": "OpenAPI JSON",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{webGatewayUrl}}/openapi.json",
+              "host": [
+                "{{webGatewayUrl}}"
+              ],
+              "path": [
+                "openapi.json"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Convert PDF to EPC",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": "{{pdfPath}}"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{webGatewayUrl}}/api/convert/pdf",
+              "host": [
+                "{{webGatewayUrl}}"
+              ],
+              "path": [
+                "api",
+                "convert",
+                "pdf"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "const body = pm.response.json();",
+                  "pm.test('Response contains amount and iban', function () {",
+                  "  pm.expect(body.upn_parsed).to.have.property('amount');",
+                  "  pm.expect(body.upn_parsed).to.have.property('iban');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Convert UPN String to EPC",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"upn_payload\": \"{{upnPayload}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{webGatewayUrl}}/api/convert/upn-string",
+              "host": [
+                "{{webGatewayUrl}}"
+              ],
+              "path": [
+                "api",
+                "convert",
+                "upn-string"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Recent Conversions",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{webGatewayUrl}}/api/conversions/recent?limit=20",
+              "host": [
+                "{{webGatewayUrl}}"
+              ],
+              "path": [
+                "api",
+                "conversions",
+                "recent"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Conversion Stats",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{webGatewayUrl}}/api/conversions/stats",
+              "host": [
+                "{{webGatewayUrl}}"
+              ],
+              "path": [
+                "api",
+                "conversions",
+                "stats"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Clear Conversion History",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{webGatewayUrl}}/api/conversions",
+              "host": [
+                "{{webGatewayUrl}}"
+              ],
+              "path": [
+                "api",
+                "conversions"
+              ]
+            }
           }
         }
       ]
     },
     {
-      "name": "Convert UPN String to EPC",
-      "request": {
-        "method": "POST",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{\n  \"upn_payload\": \"{{upnPayload}}\"\n}",
-          "options": {
-            "raw": {
-              "language": "json"
+      "name": "Mobile Gateway (FastAPI)",
+      "item": [
+        {
+          "name": "Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{mobileGatewayUrl}}/mobile/health",
+              "host": [
+                "{{mobileGatewayUrl}}"
+              ],
+              "path": [
+                "mobile",
+                "health"
+              ]
             }
           }
         },
-        "url": {
-          "raw": "{{baseUrl}}/api/convert/upn-string",
-          "host": [
-            "{{baseUrl}}"
-          ],
-          "path": [
-            "api",
-            "convert",
-            "upn-string"
-          ]
-        }
-      },
-      "event": [
         {
-          "listen": "test",
-          "script": {
-            "type": "text/javascript",
-            "exec": [
-              "pm.test('Status is 200', function () {",
-              "  pm.response.to.have.status(200);",
-              "});",
-              "const body = pm.response.json();",
-              "pm.test('Amount is parsed', function () {",
-              "  pm.expect(body.upn_parsed.amount).to.not.eql(null);",
-              "});",
-              "pm.test('EPC QR image exists', function () {",
-              "  pm.expect((body.epc_qr_png_base64 || '').length).to.be.above(100);",
-              "});"
-            ]
+          "name": "Scan UPN (mobile contract)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"upn_payload\": \"{{upnPayload}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{mobileGatewayUrl}}/mobile/scan/upn",
+              "host": [
+                "{{mobileGatewayUrl}}"
+              ],
+              "path": [
+                "mobile",
+                "scan",
+                "upn"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "const body = pm.response.json();",
+                  "pm.test('Mobile contract fields exist', function () {",
+                  "  pm.expect(body.channel).to.eql('mobile');",
+                  "  pm.expect(body.payment).to.have.property('iban');",
+                  "  pm.expect(body.qr).to.have.property('epc_payload');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Scan PDF (mobile contract)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": "{{pdfPath}}"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{mobileGatewayUrl}}/mobile/scan/pdf",
+              "host": [
+                "{{mobileGatewayUrl}}"
+              ],
+              "path": [
+                "mobile",
+                "scan",
+                "pdf"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Mobile History",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{mobileGatewayUrl}}/mobile/history?limit=10",
+              "host": [
+                "{{mobileGatewayUrl}}"
+              ],
+              "path": [
+                "mobile",
+                "history"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Mobile Insights",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{mobileGatewayUrl}}/mobile/insights",
+              "host": [
+                "{{mobileGatewayUrl}}"
+              ],
+              "path": [
+                "mobile",
+                "insights"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Mobile Capabilities",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{mobileGatewayUrl}}/mobile/capabilities",
+              "host": [
+                "{{mobileGatewayUrl}}"
+              ],
+              "path": [
+                "mobile",
+                "capabilities"
+              ]
+            }
           }
         }
       ]
