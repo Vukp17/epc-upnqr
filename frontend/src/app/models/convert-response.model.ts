@@ -1,5 +1,7 @@
 export interface UPNParsedData {
   recipient_name: string | null;
+  recipient_address: string | null;
+  recipient_city: string | null;
   iban: string | null;
   amount: number | null;
   currency: string;
@@ -7,6 +9,10 @@ export interface UPNParsedData {
   purpose: string | null;
   reference: string | null;
   payer_name: string | null;
+  payer_address: string | null;
+  payer_city: string | null;
+  due_date: string | null;
+  control_code: string | null;
 }
 
 export interface ConvertResponse {

@@ -3,16 +3,32 @@
   "name": "web-gateway",
   "port": 8080,
   "timeout": "30000ms",
+  "extra_config": {
+    "security/cors": {
+      "allow_origins": ["*"],
+      "allow_methods": ["GET", "POST", "DELETE", "OPTIONS"],
+      "allow_headers": ["Content-Type", "Authorization"],
+      "expose_headers": ["Content-Type", "Content-Disposition"],
+      "max_age": "12h"
+    }
+  },
   "endpoints": [
     {
       "endpoint": "/health",
       "method": "GET",
       "output_encoding": "json",
+      "extra_config": {
+        "qos/ratelimit/router": {
+          "max_rate": 20,
+          "capacity": 20,
+          "client_max_rate": 10,
+          "client_capacity": 10,
+          "strategy": "ip"
+        }
+      },
       "backend": [
         {
-          "host": [
-            "http://qr-converter-service:8001"
-          ],
+          "host": ["http://qr-converter-service:8001"],
           "url_pattern": "/health",
           "encoding": "json"
         }
@@ -22,12 +38,32 @@
       "endpoint": "/openapi.json",
       "method": "GET",
       "output_encoding": "json",
+      "extra_config": {
+        "qos/ratelimit/router": {
+          "max_rate": 10,
+          "capacity": 10,
+          "client_max_rate": 5,
+          "client_capacity": 5,
+          "strategy": "ip"
+        }
+      },
       "backend": [
         {
-          "host": [
-            "http://qr-converter-service:8001"
-          ],
+          "host": ["http://qr-converter-service:8001"],
           "url_pattern": "/openapi.json",
+          "encoding": "json"
+        }
+      ]
+    },
+    {
+      "endpoint": "/auth/login",
+      "method": "POST",
+      "output_encoding": "json",
+      "input_headers": ["Content-Type"],
+      "backend": [
+        {
+          "host": ["http://qr-converter-service:8001"],
+          "url_pattern": "/auth/login",
           "encoding": "json"
         }
       ]
@@ -36,14 +72,19 @@
       "endpoint": "/api/convert/upn-string",
       "method": "POST",
       "output_encoding": "json",
-      "input_headers": [
-        "Content-Type"
-      ],
+      "input_headers": ["Content-Type"],
+      "extra_config": {
+        "qos/ratelimit/router": {
+          "max_rate": 10,
+          "capacity": 10,
+          "client_max_rate": 3,
+          "client_capacity": 3,
+          "strategy": "ip"
+        }
+      },
       "backend": [
         {
-          "host": [
-            "http://qr-converter-service:8001"
-          ],
+          "host": ["http://qr-converter-service:8001"],
           "url_pattern": "/api/convert/upn-string",
           "encoding": "json"
         }
@@ -53,14 +94,19 @@
       "endpoint": "/api/convert/pdf",
       "method": "POST",
       "output_encoding": "no-op",
-      "input_headers": [
-        "Content-Type"
-      ],
+      "input_headers": ["Content-Type"],
+      "extra_config": {
+        "qos/ratelimit/router": {
+          "max_rate": 5,
+          "capacity": 5,
+          "client_max_rate": 2,
+          "client_capacity": 2,
+          "strategy": "ip"
+        }
+      },
       "backend": [
         {
-          "host": [
-            "http://qr-converter-service:8001"
-          ],
+          "host": ["http://qr-converter-service:8001"],
           "url_pattern": "/api/convert/pdf",
           "encoding": "no-op"
         }
@@ -70,11 +116,19 @@
       "endpoint": "/api/conversions/recent",
       "method": "GET",
       "output_encoding": "json",
+      "input_headers": ["Authorization"],
+      "extra_config": {
+        "qos/ratelimit/router": {
+          "max_rate": 20,
+          "capacity": 20,
+          "client_max_rate": 10,
+          "client_capacity": 10,
+          "strategy": "ip"
+        }
+      },
       "backend": [
         {
-          "host": [
-            "http://qr-converter-service:8001"
-          ],
+          "host": ["http://qr-converter-service:8001"],
           "url_pattern": "/api/conversions/recent",
           "encoding": "json"
         }
@@ -84,13 +138,43 @@
       "endpoint": "/api/conversions/stats",
       "method": "GET",
       "output_encoding": "json",
+      "input_headers": ["Authorization"],
+      "extra_config": {
+        "qos/ratelimit/router": {
+          "max_rate": 20,
+          "capacity": 20,
+          "client_max_rate": 10,
+          "client_capacity": 10,
+          "strategy": "ip"
+        }
+      },
       "backend": [
         {
-          "host": [
-            "http://qr-converter-service:8001"
-          ],
+          "host": ["http://qr-converter-service:8001"],
           "url_pattern": "/api/conversions/stats",
           "encoding": "json"
+        }
+      ]
+    },
+    {
+      "endpoint": "/api/conversions/{id}/pdf",
+      "method": "GET",
+      "output_encoding": "no-op",
+      "input_headers": ["Authorization"],
+      "extra_config": {
+        "qos/ratelimit/router": {
+          "max_rate": 20,
+          "capacity": 20,
+          "client_max_rate": 10,
+          "client_capacity": 10,
+          "strategy": "ip"
+        }
+      },
+      "backend": [
+        {
+          "host": ["http://qr-converter-service:8001"],
+          "url_pattern": "/api/conversions/{id}/pdf",
+          "encoding": "no-op"
         }
       ]
     },
@@ -98,11 +182,19 @@
       "endpoint": "/api/conversions",
       "method": "DELETE",
       "output_encoding": "json",
+      "input_headers": ["Authorization"],
+      "extra_config": {
+        "qos/ratelimit/router": {
+          "max_rate": 5,
+          "capacity": 5,
+          "client_max_rate": 2,
+          "client_capacity": 2,
+          "strategy": "ip"
+        }
+      },
       "backend": [
         {
-          "host": [
-            "http://qr-converter-service:8001"
-          ],
+          "host": ["http://qr-converter-service:8001"],
           "url_pattern": "/api/conversions",
           "encoding": "json"
         }

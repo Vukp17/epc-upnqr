@@ -3,6 +3,8 @@ from pydantic import BaseModel, Field
 
 class UPNParsedData(BaseModel):
     recipient_name: str | None = Field(default=None)
+    recipient_address: str | None = Field(default=None)
+    recipient_city: str | None = Field(default=None)
     iban: str | None = Field(default=None)
     amount: float | None = Field(default=None)
     currency: str = Field(default="EUR")
@@ -10,6 +12,10 @@ class UPNParsedData(BaseModel):
     purpose: str | None = Field(default=None)
     reference: str | None = Field(default=None)
     payer_name: str | None = Field(default=None)
+    payer_address: str | None = Field(default=None)
+    payer_city: str | None = Field(default=None)
+    due_date: str | None = Field(default=None)
+    control_code: str | None = Field(default=None)
 
 
 class ConvertResponse(BaseModel):

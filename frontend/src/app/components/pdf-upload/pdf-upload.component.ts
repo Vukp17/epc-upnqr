@@ -1,4 +1,4 @@
-import { Component, Output, EventEmitter } from '@angular/core';
+import { Component, EventEmitter, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { QrConverterService } from '../../services/qr-converter.service';
 import { ConvertResponse } from '../../models/convert-response.model';
@@ -10,20 +10,33 @@ import { ConvertResponse } from '../../models/convert-response.model';
   template: `
     <div class="form-container">
       <h3>Upload PDF</h3>
+
       <div class="form-group">
         <input
-          #fileInput
           id="pdf-file-input"
           type="file"
-          accept=".pdf"
+          accept=".pdf,application/pdf"
           (change)="onFileSelected($event)"
           [disabled]="isLoading"
           class="file-input"
         />
-        <label for="pdf-file-input" class="file-label">
-          <span class="file-text">{{ selectedFileName || 'Choose a PDF file...' }}</span>
+
+        <label
+          for="pdf-file-input"
+          class="drop-zone"
+          [class.drag-over]="isDragOver"
+          [class.disabled]="isLoading"
+          (dragenter)="onDragEnter($event)"
+          (dragover)="onDragOver($event)"
+          (dragleave)="onDragLeave($event)"
+          (drop)="onDrop($event)"
+        >
+          <span class="drop-title">Drag & drop PDF here</span>
+          <span class="drop-subtitle">or click to choose file</span>
+          <span class="file-text" *ngIf="selectedFileName">Selected: {{ selectedFileName }}</span>
         </label>
       </div>
+
       <button
         (click)="onConvert()"
         [disabled]="!selectedFile || isLoading"
@@ -31,6 +44,7 @@ import { ConvertResponse } from '../../models/convert-response.model';
       >
         {{ isLoading ? 'Converting...' : 'Convert' }}
       </button>
+
       <div *ngIf="error" class="error-message">
         {{ error }}
       </div>
@@ -58,24 +72,56 @@ import { ConvertResponse } from '../../models/convert-response.model';
       display: none;
     }
 
-    .file-label {
-      display: inline-block;
-      padding: 10px 16px;
-      background-color: #f0f0f0;
-      border: 2px solid #ddd;
-      border-radius: 6px;
+    .drop-zone {
+      width: 100%;
+      min-height: 122px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 14px;
+      background: linear-gradient(180deg, #f9fbff 0%, #eef4ff 100%);
+      border: 2px dashed #9fb7d9;
+      border-radius: 10px;
       cursor: pointer;
       transition: all 0.2s ease;
+      text-align: center;
+      box-sizing: border-box;
     }
 
-    .file-label:hover {
-      background-color: #e8e8e8;
-      border-color: #999;
+    .drop-zone:hover {
+      border-color: #4f7ec2;
+      background: linear-gradient(180deg, #f4f8ff 0%, #e7efff 100%);
+    }
+
+    .drop-zone.drag-over {
+      border-color: #2f6fcc;
+      background: linear-gradient(180deg, #eef5ff 0%, #dae9ff 100%);
+      transform: translateY(-1px);
+    }
+
+    .drop-zone.disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
+    }
+
+    .drop-title {
+      color: #1f3b64;
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .drop-subtitle {
+      color: #4c678a;
+      font-size: 13px;
     }
 
     .file-text {
-      color: #333;
-      font-size: 14px;
+      color: #244573;
+      font-size: 13px;
+      font-weight: 600;
+      word-break: break-all;
     }
 
     .convert-btn {
@@ -117,18 +163,63 @@ export class PdfUploadComponent {
   selectedFile: File | null = null;
   selectedFileName: string | null = null;
   isLoading = false;
+  isDragOver = false;
   error: string | null = null;
 
-  constructor(private qrService: QrConverterService) { }
+  constructor(private qrService: QrConverterService) {}
 
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     const files = input.files;
-    if (files && files.length > 0) {
-      this.selectedFile = files[0];
-      this.selectedFileName = files[0].name;
-      this.error = null;
+    this.applySelectedFile(files && files.length > 0 ? files[0] : null);
+  }
+
+  onDragEnter(event: DragEvent): void {
+    event.preventDefault();
+    if (!this.isLoading) {
+      this.isDragOver = true;
     }
+  }
+
+  onDragOver(event: DragEvent): void {
+    event.preventDefault();
+    if (!this.isLoading) {
+      this.isDragOver = true;
+    }
+  }
+
+  onDragLeave(event: DragEvent): void {
+    event.preventDefault();
+    this.isDragOver = false;
+  }
+
+  onDrop(event: DragEvent): void {
+    event.preventDefault();
+    this.isDragOver = false;
+
+    if (this.isLoading) {
+      return;
+    }
+
+    const files = event.dataTransfer?.files;
+    this.applySelectedFile(files && files.length > 0 ? files[0] : null);
+  }
+
+  private applySelectedFile(file: File | null): void {
+    if (!file) {
+      return;
+    }
+
+    if (!file.name.toLowerCase().endsWith('.pdf')) {
+      this.error = 'Please choose a PDF file.';
+      this.selectedFile = null;
+      this.selectedFileName = null;
+      return;
+    }
+
+    this.selectedFile = file;
+    this.selectedFileName = file.name;
+    this.error = null;
   }
 
   onConvert(): void {
@@ -145,6 +236,7 @@ export class PdfUploadComponent {
         this.isLoading = false;
         this.selectedFile = null;
         this.selectedFileName = null;
+        this.isDragOver = false;
       },
       error: (err) => {
         this.isLoading = false;

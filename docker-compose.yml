@@ -1,14 +1,67 @@
 version: "3.9"
 
+# ── Micro Frontend shell + 3 remotes ─────────────────────────────────────────
 services:
+  shell:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        PROJECT: shell
+        PORT: 4200
+    container_name: shell
+    ports:
+      - "4200:4200"
+    depends_on:
+      - remote-conversion
+      - remote-observability
+      - remote-mobile
+    restart: unless-stopped
+
+  remote-conversion:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        PROJECT: remote-conversion
+        PORT: 4201
+    container_name: remote-conversion
+    ports:
+      - "4201:4201"
+    restart: unless-stopped
+
+  remote-observability:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        PROJECT: remote-observability
+        PORT: 4202
+    container_name: remote-observability
+    ports:
+      - "4202:4202"
+    restart: unless-stopped
+
+  remote-mobile:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        PROJECT: remote-mobile
+        PORT: 4203
+    container_name: remote-mobile
+    ports:
+      - "4203:4203"
+    restart: unless-stopped
+
+  # ── Gateways ─────────────────────────────────────────────────────────────────
   web-gateway:
-    image: devopsfaith/krakend:2.7
+    build:
+      context: ./gateways/web-gateway
+      dockerfile: Dockerfile
     container_name: web-gateway
-    command: ["run", "-d", "-c", "/etc/krakend/krakend.json"]
     ports:
       - "8080:8080"
-    volumes:
-      - ./gateways/web-gateway/krakend.json:/etc/krakend/krakend.json:ro
     depends_on:
       - qr-converter-service
     restart: unless-stopped
@@ -22,8 +75,11 @@ services:
       - "8090:8090"
     depends_on:
       - qr-converter-service
+    environment:
+      - JWT_SECRET=change-me
     restart: unless-stopped
 
+  # ── Backend services ──────────────────────────────────────────────────────────
   qr-converter-service:
     build:
       context: ./services/qr-converter-service
@@ -33,6 +89,13 @@ services:
       - "8001:8001"
     environment:
       - PYTHONUNBUFFERED=1
+      - AUTH_USERNAME=admin
+      - AUTH_PASSWORD=admin
+      - JWT_SECRET=change-me
+      - JWT_TTL_MIN=1440
+      - DB_PATH=/data/conversions.db
+    volumes:
+      - qr-converter-data:/data
     restart: unless-stopped
 
   upn-records-service:
@@ -51,3 +114,4 @@ services:
 
 volumes:
   upn-records-data:
+  qr-converter-data:

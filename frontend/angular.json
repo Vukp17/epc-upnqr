@@ -7,46 +7,48 @@
   },
   "newProjectRoot": "projects",
   "projects": {
-    "frontend": {
+
+    "shell": {
       "projectType": "application",
       "schematics": {
-        "@schematics/angular:component": {
-          "style": "scss"
-        }
+        "@schematics/angular:component": { "style": "scss" }
       },
       "root": "",
       "sourceRoot": "src",
       "prefix": "app",
       "architect": {
         "build": {
+          "builder": "@angular-architects/native-federation:build",
+          "options": {
+            "target": "shell:_esbuild:production",
+            "federationConfig": "federation.config.js",
+            "verbose": false
+          },
+          "configurations": {
+            "production": { "target": "shell:_esbuild:production" },
+            "development": { "target": "shell:_esbuild:development" }
+          },
+          "defaultConfiguration": "production"
+        },
+        "_esbuild": {
           "builder": "@angular/build:application",
           "options": {
+            "outputPath": "dist/shell",
+            "index": "src/index.html",
             "browser": "src/main.ts",
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "scss",
             "assets": [
-              {
-                "glob": "**/*",
-                "input": "public"
-              }
+              { "glob": "**/*", "input": "public" },
+              { "glob": "**/*", "input": "src/assets", "output": "assets" }
             ],
-            "styles": [
-              "src/styles.scss"
-            ]
+            "styles": ["src/styles.scss"]
           },
           "configurations": {
             "production": {
               "budgets": [
-                {
-                  "type": "initial",
-                  "maximumWarning": "500kB",
-                  "maximumError": "1MB"
-                },
-                {
-                  "type": "anyComponentStyle",
-                  "maximumWarning": "4kB",
-                  "maximumError": "8kB"
-                }
+                { "type": "initial", "maximumWarning": "500kB", "maximumError": "1MB" },
+                { "type": "anyComponentStyle", "maximumWarning": "4kB", "maximumError": "8kB" }
               ],
               "outputHashing": "all"
             },
@@ -59,14 +61,20 @@
           "defaultConfiguration": "production"
         },
         "serve": {
+          "builder": "@angular-architects/native-federation:build",
+          "options": {
+            "target": "shell:_serve",
+            "federationConfig": "federation.config.js",
+            "dev": true,
+            "port": 4200,
+            "verbose": false
+          }
+        },
+        "_serve": {
           "builder": "@angular/build:dev-server",
           "configurations": {
-            "production": {
-              "buildTarget": "frontend:build:production"
-            },
-            "development": {
-              "buildTarget": "frontend:build:development"
-            }
+            "production": { "buildTarget": "shell:_esbuild:production" },
+            "development": { "buildTarget": "shell:_esbuild:development" }
           },
           "defaultConfiguration": "development"
         },
@@ -74,6 +82,193 @@
           "builder": "@angular/build:unit-test"
         }
       }
+    },
+
+    "remote-conversion": {
+      "projectType": "application",
+      "schematics": {
+        "@schematics/angular:component": { "style": "scss" }
+      },
+      "root": "projects/remote-conversion",
+      "sourceRoot": "projects/remote-conversion/src",
+      "prefix": "app",
+      "architect": {
+        "build": {
+          "builder": "@angular-architects/native-federation:build",
+          "options": {
+            "target": "remote-conversion:_esbuild:production",
+            "federationConfig": "projects/remote-conversion/federation.config.js",
+            "verbose": false
+          },
+          "configurations": {
+            "production": { "target": "remote-conversion:_esbuild:production" },
+            "development": { "target": "remote-conversion:_esbuild:development" }
+          },
+          "defaultConfiguration": "production"
+        },
+        "_esbuild": {
+          "builder": "@angular/build:application",
+          "options": {
+            "outputPath": "dist/remote-conversion",
+            "index": "projects/remote-conversion/src/index.html",
+            "browser": "projects/remote-conversion/src/main.ts",
+            "tsConfig": "projects/remote-conversion/tsconfig.app.json",
+            "inlineStyleLanguage": "scss",
+            "assets": [],
+            "styles": []
+          },
+          "configurations": {
+            "production": {
+              "outputHashing": "all"
+            },
+            "development": {
+              "optimization": false,
+              "extractLicenses": false,
+              "sourceMap": true
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve": {
+          "builder": "@angular-architects/native-federation:build",
+          "options": {
+            "target": "remote-conversion:_serve",
+            "federationConfig": "projects/remote-conversion/federation.config.js",
+            "dev": true,
+            "port": 4201,
+            "verbose": false
+          }
+        },
+        "_serve": {
+          "builder": "@angular/build:dev-server",
+          "configurations": {
+            "production": { "buildTarget": "remote-conversion:_esbuild:production" },
+            "development": { "buildTarget": "remote-conversion:_esbuild:development" }
+          },
+          "defaultConfiguration": "development"
+        }
+      }
+    },
+
+    "remote-observability": {
+      "projectType": "application",
+      "schematics": {
+        "@schematics/angular:component": { "style": "scss" }
+      },
+      "root": "projects/remote-observability",
+      "sourceRoot": "projects/remote-observability/src",
+      "prefix": "app",
+      "architect": {
+        "build": {
+          "builder": "@angular-architects/native-federation:build",
+          "options": {
+            "target": "remote-observability:_esbuild:production",
+            "federationConfig": "projects/remote-observability/federation.config.js",
+            "verbose": false
+          },
+          "configurations": {
+            "production": { "target": "remote-observability:_esbuild:production" },
+            "development": { "target": "remote-observability:_esbuild:development" }
+          },
+          "defaultConfiguration": "production"
+        },
+        "_esbuild": {
+          "builder": "@angular/build:application",
+          "options": {
+            "outputPath": "dist/remote-observability",
+            "index": "projects/remote-observability/src/index.html",
+            "browser": "projects/remote-observability/src/main.ts",
+            "tsConfig": "projects/remote-observability/tsconfig.app.json",
+            "inlineStyleLanguage": "scss",
+            "assets": [],
+            "styles": []
+          },
+          "configurations": {
+            "production": { "outputHashing": "all" },
+            "development": { "optimization": false, "extractLicenses": false, "sourceMap": true }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve": {
+          "builder": "@angular-architects/native-federation:build",
+          "options": {
+            "target": "remote-observability:_serve",
+            "federationConfig": "projects/remote-observability/federation.config.js",
+            "dev": true,
+            "port": 4202,
+            "verbose": false
+          }
+        },
+        "_serve": {
+          "builder": "@angular/build:dev-server",
+          "configurations": {
+            "production": { "buildTarget": "remote-observability:_esbuild:production" },
+            "development": { "buildTarget": "remote-observability:_esbuild:development" }
+          },
+          "defaultConfiguration": "development"
+        }
+      }
+    },
+
+    "remote-mobile": {
+      "projectType": "application",
+      "schematics": {
+        "@schematics/angular:component": { "style": "scss" }
+      },
+      "root": "projects/remote-mobile",
+      "sourceRoot": "projects/remote-mobile/src",
+      "prefix": "app",
+      "architect": {
+        "build": {
+          "builder": "@angular-architects/native-federation:build",
+          "options": {
+            "target": "remote-mobile:_esbuild:production",
+            "federationConfig": "projects/remote-mobile/federation.config.js",
+            "verbose": false
+          },
+          "configurations": {
+            "production": { "target": "remote-mobile:_esbuild:production" },
+            "development": { "target": "remote-mobile:_esbuild:development" }
+          },
+          "defaultConfiguration": "production"
+        },
+        "_esbuild": {
+          "builder": "@angular/build:application",
+          "options": {
+            "outputPath": "dist/remote-mobile",
+            "index": "projects/remote-mobile/src/index.html",
+            "browser": "projects/remote-mobile/src/main.ts",
+            "tsConfig": "projects/remote-mobile/tsconfig.app.json",
+            "inlineStyleLanguage": "scss",
+            "assets": [],
+            "styles": []
+          },
+          "configurations": {
+            "production": { "outputHashing": "all" },
+            "development": { "optimization": false, "extractLicenses": false, "sourceMap": true }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve": {
+          "builder": "@angular-architects/native-federation:build",
+          "options": {
+            "target": "remote-mobile:_serve",
+            "federationConfig": "projects/remote-mobile/federation.config.js",
+            "dev": true,
+            "port": 4203,
+            "verbose": false
+          }
+        },
+        "_serve": {
+          "builder": "@angular/build:dev-server",
+          "configurations": {
+            "production": { "buildTarget": "remote-mobile:_esbuild:production" },
+            "development": { "buildTarget": "remote-mobile:_esbuild:development" }
+          },
+          "defaultConfiguration": "development"
+        }
+      }
     }
+
   }
 }

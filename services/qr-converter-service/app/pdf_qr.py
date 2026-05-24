@@ -61,6 +61,21 @@ def _render_pdf_page_to_image(doc: pdfium.PdfDocument, page_index: int, scale: f
     return cv2.cvtColor(np.array(pil_image), cv2.COLOR_RGB2BGR)
 
 
+def extract_qr_payload_from_image(image_bytes: bytes) -> str:
+    nparr = np.frombuffer(image_bytes, np.uint8)
+    image = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+    if image is None:
+        raise QRExtractionError("Could not decode image. Make sure it is a valid JPEG, PNG, or WebP file.")
+
+    detector = cv2.QRCodeDetector()
+    for variant in _preprocess_variants(image):
+        payload = _try_decode(detector, variant)
+        if payload:
+            return payload
+
+    raise QRExtractionError("No QR code found in the image.")
+
+
 def extract_first_qr_payload_from_pdf(pdf_bytes: bytes, max_pages: int = 5) -> str:
     with tempfile.NamedTemporaryFile(suffix=".pdf", delete=False) as temp_file:
         temp_file.write(pdf_bytes)

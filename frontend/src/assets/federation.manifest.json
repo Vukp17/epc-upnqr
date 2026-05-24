@@ -1,0 +1,5 @@
+{
+  "remote-conversion":   "http://localhost:4201/remoteEntry.json",
+  "remote-observability": "http://localhost:4202/remoteEntry.json",
+  "remote-mobile":       "http://localhost:4203/remoteEntry.json"
+}

@@ -23,6 +23,14 @@ import { ConvertResponse } from '../../models/convert-response.model';
               <td>Recipient Name</td>
               <td>{{ result.upn_parsed.recipient_name }}</td>
             </tr>
+            <tr *ngIf="result.upn_parsed.recipient_address">
+              <td>Recipient Address</td>
+              <td>{{ result.upn_parsed.recipient_address }}</td>
+            </tr>
+            <tr *ngIf="result.upn_parsed.recipient_city">
+              <td>Recipient City</td>
+              <td>{{ result.upn_parsed.recipient_city }}</td>
+            </tr>
             <tr *ngIf="result.upn_parsed.iban">
               <td>IBAN</td>
               <td><code>{{ result.upn_parsed.iban }}</code></td>
@@ -47,9 +55,25 @@ import { ConvertResponse } from '../../models/convert-response.model';
               <td>Reference</td>
               <td><code>{{ result.upn_parsed.reference }}</code></td>
             </tr>
+            <tr *ngIf="result.upn_parsed.due_date">
+              <td>Due Date</td>
+              <td>{{ result.upn_parsed.due_date }}</td>
+            </tr>
             <tr *ngIf="result.upn_parsed.payer_name">
               <td>Payer Name</td>
               <td>{{ result.upn_parsed.payer_name }}</td>
+            </tr>
+            <tr *ngIf="result.upn_parsed.payer_address">
+              <td>Payer Address</td>
+              <td>{{ result.upn_parsed.payer_address }}</td>
+            </tr>
+            <tr *ngIf="result.upn_parsed.payer_city">
+              <td>Payer City</td>
+              <td>{{ result.upn_parsed.payer_city }}</td>
+            </tr>
+            <tr *ngIf="result.upn_parsed.control_code">
+              <td>Control Code</td>
+              <td>{{ result.upn_parsed.control_code }}</td>
             </tr>
           </tbody>
         </table>
